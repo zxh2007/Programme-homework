@@ -3,8 +3,7 @@
 -- 注意：本脚本会先删除 books、authors，重复执行会清空数据。
 
 CREATE DATABASE IF NOT EXISTS bookshop
-    DEFAULT CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
+    DEFAULT CHARACTER SET utf8mb4;
 
 USE bookshop;
 
@@ -14,7 +13,7 @@ DROP TABLE IF EXISTS authors;
 CREATE TABLE authors (
     id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name       VARCHAR(50)  NOT NULL,
-    bio        VARCHAR(255),
+    bio        VARCHAR(255) NOT NULL DEFAULT '',
     created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
