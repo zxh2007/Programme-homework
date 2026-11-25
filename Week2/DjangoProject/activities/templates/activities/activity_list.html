@@ -1,0 +1,40 @@
+{% extends 'activities/base.html' %}
+
+{% block title %}社团活动{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>社团活动</h1>
+    <a class="btn" href="{% url 'activities:activity_create' %}">添加活动</a>
+</div>
+
+<form class="search" method="get" action="{% url 'activities:activity_list' %}">
+    <input type="text" name="q" value="{{ keyword }}" placeholder="按标题搜索活动">
+    <button type="submit">搜索</button>
+    {% if keyword %}<a href="{% url 'activities:activity_list' %}">清除</a>{% endif %}
+</form>
+{% if keyword %}
+    <p class="hint">标题包含“{{ keyword }}”的活动共 {{ activities|length }} 个</p>
+{% endif %}
+
+<ul class="activities">
+    {% for activity in activities %}
+        <li>
+            <h2><a href="{% url 'activities:activity_update' activity.pk %}">{{ activity.title }}</a></h2>
+            <p class="meta">
+                {{ activity.start_time|date:"Y年n月j日 H:i" }}
+                {% if activity.location %}· {{ activity.location }}{% endif %}
+            </p>
+            {% if activity.description %}
+                <p class="desc">{{ activity.description }}</p>
+            {% endif %}
+            <p class="actions">
+                <a href="{% url 'activities:activity_update' activity.pk %}">编辑</a>
+                <a class="delete" href="{% url 'activities:activity_delete' activity.pk %}">删除</a>
+            </p>
+        </li>
+    {% empty %}
+        <li class="empty">还没有活动，点击右上角“添加活动”创建第一个吧。</li>
+    {% endfor %}
+</ul>
+{% endblock %}

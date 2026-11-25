@@ -1,0 +1,21 @@
+{% extends 'activities/base.html' %}
+
+{% block title %}删除活动{% endblock %}
+
+{% block content %}
+<h1>删除活动</h1>
+
+<p>确定要删除“<strong>{{ activity.title }}</strong>”吗？删除后无法恢复。</p>
+<p class="meta">
+    {{ activity.start_time|date:"Y年n月j日 H:i" }}
+    {% if activity.location %}· {{ activity.location }}{% endif %}
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-actions">
+        <button type="submit" class="danger">确认删除</button>
+        <a href="{% url 'activities:activity_list' %}">取消</a>
+    </div>
+</form>
+{% endblock %}
