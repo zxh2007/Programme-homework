@@ -1,25 +1,41 @@
--- Week3 03：六项 SQL 操作（查询 / 更新 / 删除 / 关联查询）
--- 前提：已执行 01_schema.sql、02_seed.sql
+-- Week3 03：六道查询 / 更新 / 删除题
+-- 前提：已执行 01_schema.sql、02_seed.sql（空库、刚导入种子数据）
 
 USE bookshop;
 
--- ③ 查询：只取需要的列，按 id 排序
-SELECT id, title, price, stock
-FROM books
-ORDER BY id;
-
--- ③ 查询（条件一）：库存为 0 的书（种子数据里没有，结果应为空）
+-- Q1：查询库存为 0 的书名和库存。
+-- 预期结果：球状闪电 0、白夜行 0
 SELECT title, stock
 FROM books
 WHERE stock = 0;
 
--- ③ 查询（条件二）：价格在 20~40 元之间
-SELECT title, price
+-- Q2：按价格降序取前三本，同价时按 id 升序。
+-- 预期结果：白夜行 39.50、解忧杂货店 35.00、球状闪电 32.00
+SELECT id, title, price
 FROM books
-WHERE price BETWEEN 20 AND 40;
+ORDER BY price DESC, id ASC
+LIMIT 3;
 
--- ④ 更新：卖出一本《三体》，库存减 1；stock > 0 防止减成负数
--- 种子数据里 id = 1 就是《三体》
+-- Q3：查询价格在 20 到 40 之间的书（含边界）。
+-- 预期结果：三体、球状闪电、活着、许三观卖血记、白夜行、解忧杂货店、彷徨（共 7 本）
+SELECT id, title, price
+FROM books
+WHERE price BETWEEN 20 AND 40
+ORDER BY id;
+
+-- Q4：JOIN 查每本书的书名、作者名和价格。
+-- 预期结果：8 行，顺序与 02_seed.sql 一致
+SELECT b.title, a.name AS author, b.price
+FROM books AS b
+JOIN authors AS a ON b.author_id = a.id
+ORDER BY b.id;
+
+-- Q5：先查《三体》当前库存（12），再减 1，最后再查一次（11）。
+-- stock > 0 防止库存减成负数
+SELECT id, title, stock
+FROM books
+WHERE id = 1;
+
 UPDATE books
 SET stock = stock - 1
 WHERE id = 1 AND stock > 0;
@@ -28,31 +44,27 @@ SELECT id, title, stock
 FROM books
 WHERE id = 1;
 
--- ⑤ 删除：先插入一条临时记录，再按标题删掉
-INSERT INTO books (title, author_id, price, stock)
-VALUES ('删除演示专用临时书', (SELECT id FROM authors WHERE name = '刘慈欣'), 9.90, 1);
+-- Q6：插入一条唯一标记的临时书，确认后按 id 删除它，不影响其他书。
+-- 用 LAST_INSERT_ID() 拿到刚插入的 id，比按标题删更稳妥
+INSERT INTO books (title, author_id, price, stock, published_at)
+VALUES (
+    '删除演示专用临时书',
+    (SELECT id FROM authors WHERE name = '刘慈欣'),
+    9.90,
+    1,
+    '2026-12-01'
+);
+
+SET @book_id = LAST_INSERT_ID();
 
 SELECT id, title
 FROM books
-WHERE title = '删除演示专用临时书';
+WHERE id = @book_id;
 
 DELETE FROM books
-WHERE title = '删除演示专用临时书';
+WHERE id = @book_id;
 
 -- 删除后再查一次，结果应为空
 SELECT id, title
 FROM books
-WHERE title = '删除演示专用临时书';
-
--- ⑥ 关联查询：书名 + 作者名
-SELECT b.title, a.name AS author, b.price
-FROM books AS b
-JOIN authors AS a ON b.author_id = a.id
-ORDER BY b.id;
-
--- 选做：GROUP BY，统计每位作者几本书、平均价
-SELECT a.name, COUNT(*) AS book_count, ROUND(AVG(b.price), 2) AS avg_price
-FROM authors AS a
-JOIN books AS b ON b.author_id = a.id
-GROUP BY a.id, a.name
-ORDER BY book_count DESC, a.id;
+WHERE id = @book_id;
