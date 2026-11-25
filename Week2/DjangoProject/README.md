@@ -7,7 +7,7 @@
 课程虚拟环境在 `D:\Coding\PY\.venv`（Django 6.1.3），可以直接用它的 Python：
 
 ```bash
-cd D:\Coding\PY\Week2\DjangoProject
+cd D:\Coding\PY\Programme-homework\Week2\DjangoProject
 D:\Coding\PY\.venv\Scripts\python.exe manage.py migrate
 D:\Coding\PY\.venv\Scripts\python.exe manage.py runserver
 ```
